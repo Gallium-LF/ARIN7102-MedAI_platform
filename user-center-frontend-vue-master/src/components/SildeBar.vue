@@ -23,6 +23,7 @@ import {
   SettingOutlined,
   CommentOutlined,
   HomeOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons-vue";
 import type { MenuProps, ItemType } from "ant-design-vue";
 import { useRouter, useRoute } from "vue-router";
@@ -59,20 +60,11 @@ const items: ItemType[] = reactive([
 
   { type: "divider" },
 
-  getItem("Navigation Three", "sub4", () => h(SettingOutlined), [
-    getItem("Option 9", "9"),
-    getItem("Option 10", "10"),
-    getItem("Option 11", "11"),
-    getItem("Option 12", "12"),
+  getItem("Dashboard", "sub4", () => h(DashboardOutlined), [
+    getItem("Reviews", "9"),
+    getItem("Customers", "10"),
+    getItem("Sales", "11"),
   ]),
-
-  getItem(
-    "Group",
-    "grp",
-    null,
-    [getItem("Option 13", "13"), getItem("Option 14", "14")],
-    "group"
-  ),
 ]);
 
 // ✅ 处理点击事件
@@ -83,6 +75,15 @@ const handleClick: MenuProps["onClick"] = (e) => {
   }
   if (e.key === "sub2") {
     router.push({ name: "about" });
+  }
+  if (e.key === "9") {
+    router.push({ name: "dashboard" });
+  }
+  if (e.key === "10") {
+    router.push({ name: "dashboard2" });
+  }
+  if (e.key === "11") {
+    router.push({ name: "dashboard3" });
   }
 };
 

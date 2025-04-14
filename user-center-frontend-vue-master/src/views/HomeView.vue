@@ -88,7 +88,7 @@ const chatList = ref<
 const messages = ref<{ role: "user" | "ai"; text: string }[]>([
   {
     role: "ai",
-    text: "Hello, I'm your pharma sales assistant. How can I help you?",
+    text: "Hello, I'm your pharma sales assistant. How can I help you? \nHere is some question:\nWhich medications for headache have the highest user ratings?\nWhat are the top-rated drugs for treating migraines according to user reviews?\nAre there any over-the-counter pain relievers with excellent customer feedback?\nWhich anti-inflammatory drugs are most recommended by users?\nWhat headache medications have the best balance of effectiveness and low side effects?",
   },
 ]);
 const inputMessage = ref("");
