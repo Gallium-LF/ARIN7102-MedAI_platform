@@ -4,7 +4,7 @@ from openai import OpenAI
 
 def chatapi(user_message: str) -> str:
     client = OpenAI(
-        api_key="sk-2aba0fdff1d54b9c80504696b8841fe9",
+        api_key="<api-key>",
         base_url="https://api.deepseek.com",
     )
 
