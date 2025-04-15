@@ -23,20 +23,48 @@ db.init_app(app)
 _device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {_device}")
 
-_model = SentenceTransformer("all-MiniLM-L6-v2", device=_device)
-_index = faiss.read_index("backend/drug_reviews.index")
-with open("backend/id_to_text.pkl", "rb") as f:
-    _texts = pickle.load(f)
+# 指定模型和设备
+_model = SentenceTransformer(
+    "all-MiniLM-L6-v2", device="cuda" if torch.cuda.is_available() else "cpu"
+)
+
+# 三个向量库配置（路径）
+VECTOR_SOURCES = {
+    "user_behavior": {
+        "index": "backend/user_behavior.index",
+        "pkl": "backend/user_behavior.pkl",
+    },
+    "store_sales": {
+        "index": "backend/store_sales.index",
+        "pkl": "backend/store_sales.pkl",
+    },
+    "drug_reviews": {
+        "index": "backend/drug_reviews.index",
+        "pkl": "backend/id_to_text.pkl",
+    },
+}
+
+# 加载所有向量库（一次性）
+_loaded_indexes = {}
+for name, paths in VECTOR_SOURCES.items():
+    idx = faiss.read_index(paths["index"])
+    with open(paths["pkl"], "rb") as f:
+        txts = pickle.load(f)
+    _loaded_indexes[name] = (idx, txts)
 
 
-def retrieve_reviews_for_llm(user_query: str, top_k: int = 5) -> str:
+# 多库检索函数
+def retrieve_reviews_for_llm(user_query: str, top_k: int = 10) -> str:
     query_embedding = _model.encode([user_query], convert_to_numpy=True)
-
-    D, I = _index.search(query_embedding, top_k)
-
     results = []
-    for rank, i in enumerate(I[0]):
-        results.append(f"Result {rank + 1}:\n{_texts[i]}")
+
+    for source_name, (index, texts) in _loaded_indexes.items():
+        D, I = index.search(query_embedding, top_k)
+
+        section = [f"=== Source: {source_name} ==="]
+        for rank, i in enumerate(I[0]):
+            section.append(f"{rank + 1}. {texts[i]}")
+        results.append("\n".join(section))
 
     return "\n\n".join(results)
 
@@ -45,15 +73,20 @@ def build_prompt(user_question: str, retrieved_context: str) -> str:
     """
     构建药品销售建议助手使用的大模型 Prompt。
     """
-    prompt = f"""You are a pharmaceutical sales assistant. Based on the following user reviews and feedback, help provide a drug recommendation that is popular, effective, and well-received.
+    prompt = f"""You are a helpful AI assistant who is answering a question using structured information retrieved from different data sources.
 
-Customer Question:
-{user_question}
+Below are the relevant records retrieved from multiple sources:
 
-Relevant Drug Reviews:
 {retrieved_context}
 
-As a sales assistant, give your recommendation with reasons based on user opinions:"""
+Your task is to analyze the provided information and answer the user's question as accurately as possible.
+If some records are not useful for answering the question, simply ignore them without commenting on their relevance.
+
+Be concise and focus your answer based only on useful information.
+
+User Question: {user_question}
+
+Answer:"""
     return prompt
 
 
