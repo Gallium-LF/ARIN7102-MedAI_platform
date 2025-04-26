@@ -20,7 +20,6 @@ avg_discount = total_discount / total_users if total_users else 0
 purchase_rate = purchase_count / total_users if total_users else 0
 loyalty_rate = loyalty_count / total_users if total_users else 0
 
-# TypeScript 数据文件写入
 with open(output_ts_file, "w", encoding="utf-8") as f:
     f.write("export const kpiData = {\n")
     f.write(f"  totalUsers: {total_users},\n")
@@ -30,4 +29,3 @@ with open(output_ts_file, "w", encoding="utf-8") as f:
     f.write(f"  avgDiscounts: {round(avg_discount, 2)}\n")
     f.write("};\n")
 
-print("✅ KPI 数据已写入 kpiData.ts")

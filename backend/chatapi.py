@@ -1,10 +1,9 @@
-# chatapi.py
 from openai import OpenAI
 
 
 def chatapi(user_message: str) -> str:
     client = OpenAI(
-        api_key="<api-key>",
+        api_key="your_api_key_here",
         base_url="https://api.deepseek.com",
     )
 

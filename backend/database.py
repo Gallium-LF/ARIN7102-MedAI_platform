@@ -7,7 +7,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# 初始化数据库
 db = SQLAlchemy(app)
 
 
@@ -35,7 +34,6 @@ class Message(db.Model):
     answer = db.Column(db.Text, nullable=False)
 
 
-# ✅ 在 Flask 2.3+ 版本中使用 app.app_context() 创建表
 with app.app_context():
     db.create_all()
 

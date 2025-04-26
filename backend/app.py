@@ -23,13 +23,11 @@ db.init_app(app)
 _device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {_device}")
 
-# 指定模型和设备
 _model = SentenceTransformer(
     "all-MiniLM-L6-v2", device="cuda" if torch.cuda.is_available() else "cpu"
 )
-
-# 三个向量库配置（路径）
-VECTOR_SOURCES = {
+# Agent Path
+AGENT_PATH = {
     "user_behavior": {
         "index": "backend/user_behavior.index",
         "pkl": "backend/user_behavior.pkl",
@@ -44,16 +42,14 @@ VECTOR_SOURCES = {
     },
 }
 
-# 加载所有向量库（一次性）
 _loaded_indexes = {}
-for name, paths in VECTOR_SOURCES.items():
+for name, paths in AGENT_PATH.items():
     idx = faiss.read_index(paths["index"])
     with open(paths["pkl"], "rb") as f:
         txts = pickle.load(f)
     _loaded_indexes[name] = (idx, txts)
 
 
-# 多库检索函数
 def retrieve_reviews_for_llm(user_query: str, top_k: int = 10) -> str:
     query_embedding = _model.encode([user_query], convert_to_numpy=True)
     results = []
@@ -70,9 +66,6 @@ def retrieve_reviews_for_llm(user_query: str, top_k: int = 10) -> str:
 
 
 def build_prompt(user_question: str, retrieved_context: str) -> str:
-    """
-    构建药品销售建议助手使用的大模型 Prompt。
-    """
     prompt = f"""You are a helpful AI assistant who is answering a question using structured information retrieved from different data sources.
 
 Below are the relevant records retrieved from multiple sources:

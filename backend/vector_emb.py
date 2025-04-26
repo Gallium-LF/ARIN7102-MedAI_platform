@@ -33,4 +33,3 @@ faiss.write_index(index, "./drug_reviews.index")
 with open("id_to_text.pkl", "wb") as f:
     pickle.dump(texts, f)
 
-print("✅ 向量化完成并已保存至 'drug_reviews.index' 和 'id_to_text.pkl'")

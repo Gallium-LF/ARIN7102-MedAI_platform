@@ -3,7 +3,7 @@ from datetime import datetime
 
 input_file = "backend/data/merged_file.csv"
 output_ts_file = "reviewData.ts"
-MAX_ITEMS = 1000  # 限制输出数量
+MAX_ITEMS = 1000
 
 month_str_to_num = {
     "Jan": 1,
@@ -23,7 +23,6 @@ month_str_to_num = {
 
 def extract_month(date_str):
     try:
-        # 日期格式如 "29-Sep-17"
         parts = date_str.strip().split("-")
         if len(parts) >= 2:
             return month_str_to_num.get(parts[1], 0)
@@ -32,7 +31,6 @@ def extract_month(date_str):
     return 0
 
 
-# 读取并排序
 with open(input_file, encoding="utf-8") as f:
     reader = csv.DictReader(f)
     reviews = list(reader)
@@ -43,13 +41,10 @@ with open(input_file, encoding="utf-8") as f:
         r["usefulCount"] = int(r["usefulCount"]) if r["usefulCount"] else 0
         r["month"] = extract_month(r["date"])
 
-    # 按月份排序：12 → 1（忽略年份）
     reviews.sort(key=lambda x: x["month"], reverse=True)
 
-# 只保留前 MAX_ITEMS 条
 top_reviews = reviews[:MAX_ITEMS]
 
-# 写入 TypeScript 文件
 with open(output_ts_file, "w", encoding="utf-8") as f:
     f.write("export const reviewList = [\n")
     for r in top_reviews:
